@@ -254,6 +254,23 @@ pred3 = modelo3.predict(x_test)
 pred4 = modelo4.predict(x_test)
 pred5 = modelo5.predict(x_test)
 
+"""La siguiente tabla muestra los valores de entrada de las predicciones, el valor real esperado, los resultados de las predicciones y validación del modelo que indica si el valor real esperado es el mismo que el de la predicción. """
+
+pd.set_option('max_columns', None)
+dfEntPred = x_test.copy()
+dfEntPred["Valor Real Esperado"] = y_test
+dfEntPred["Predicción Modelo 1"] = pred1
+dfEntPred["Validación Pred 1"] = np.where(dfEntPred["Valor Real Esperado"] == dfEntPred["Predicción Modelo 1"], "✅" , "❌")        
+dfEntPred["Predicción Modelo 2"] = pred2
+dfEntPred["Validación Pred 2"] = np.where(dfEntPred["Valor Real Esperado"] == dfEntPred["Predicción Modelo 2"], "✅" , "❌")     
+dfEntPred["Predicción Modelo 3"] = pred3
+dfEntPred["Validación Pred 3"] = np.where(dfEntPred["Valor Real Esperado"] == dfEntPred["Predicción Modelo 3"], "✅" , "❌") 
+dfEntPred["Predicción Modelo 4"] = pred4
+dfEntPred["Validación Pred 4"] = np.where(dfEntPred["Valor Real Esperado"] == dfEntPred["Predicción Modelo 4"], "✅" , "❌")  
+dfEntPred["Predicción Modelo 5"] = pred5
+dfEntPred["Validación Pred 5"] = np.where(dfEntPred["Valor Real Esperado"] == dfEntPred["Predicción Modelo 5"], "✅" , "❌")               
+dfEntPred.head()
+
 #Modelo 1
 print('Modelo 1: ')
 print(modelo1.predict_proba([df_x.loc[0]]))
@@ -361,25 +378,29 @@ plot_learning_curves(x_train, y_train, x_test, y_test, modelo4)
 plt.title("Modelo 4 Learning Curves (train y test)")
 plt.show()
 
-"""Podemos observar que tanto los valores de training como los del test son muy similares. Por lo tanto, el modelo sufre de underfitting."""
+"""Podemos observar que tanto los valores de training como los del test son muy similares, esto significa que el error es mínimo. """
 
 plot_learning_curves(x_train, y_train, x_val, y_val, modelo4)
 plt.title("Modelo 4 Learning Curves (train y validation)")
 plt.show()
 
-"""Podemos observar que tanto los valores de training como los de validation son muy similares. Por lo tanto, el modelo sufre de underfitting al igual que la primera gráfica.
+from sklearn import metrics
+print("Error absoluto medio:", metrics.mean_absolute_error(y_test, pred4))
+print("Error cuadrático medio: ", metrics.mean_squared_error(y_test, pred4))
+
+"""Podemos observar que tanto los valores de training como los de validation son muy similares. Por lo tanto, se podría decir que el modelo está bien ajustado ya que el error tanto del training y del test es bajo. En este caso, el error absoluto es de 0.1576. De hecho, debido a que el error del test es más bajo que el del training se podría decir que el modelo está generalizando bien, porque lo que aprende en la etapa de entrenamiento lo utiliza en el test.
 
 #### Diagnóstico del grado de bias o sesgo: bajo medio alto
 
-Debido a que en el diagnóstico sobre el nivel de ajuste del modelo se obtuvo que el modelo sufría de underfitting, entonces se puede concluir que el modelo tiene un sesgo o bias alto. Además, se podría decir que es demasiado simple para representar la naturaleza de los datos.
+Debido a que en el diagnóstico sobre el nivel de ajuste del modelo se obtuvo que el modelo estaba bien ajustado y el error absoluto medio fue de 0.1576, entonces se puede concluir que el modelo tiene un sesgo o bias bajo porque tiene un mínimo de error.
 
 #### Diagnóstico del grado de varianza: bajo medio alto
 
-Debido a que en el diagnóstico sobre el nivel de ajuste del modelo se obtuvo que el modelo sufría de underfitting, entonces se puede concluir que el modelo tiene una varianza baja. Por lo tanto, existe un desajuste lo que hace que el modelo tenga un rendimiento predictivo deficiente.
+Debido a que en el diagnóstico sobre el nivel de ajuste del modelo se obtuvo que el modelo estaba bien ajustado y el error medio absoluto fue de 0.1576, entonces se puede concluir que el modelo tiene una varianza baja. Por lo tanto, existe un pequeño desajuste lo que hace que el modelo tenga un rendimiento predictivo un poco deficiente.
 
 #### Técnicas de regularización o el ajuste de parámetros para mejorar el desempeño del modelo
 
-Debido a que ambas gráficas de learning curves mostraron que el modelo 4 sufre de underfitting entonces se implementará un modelo más con mayor complejidad.
+Debido a que ambas gráficas de learning curves mostraron que el modelo 4 está bien ajustado, pero tiene un grado de sesgo y varianza bajo entonces se implementará un modelo más con mayor complejidad.
 """
 
 modelo6 = MLPClassifier(random_state = 1,
@@ -406,14 +427,23 @@ plot_learning_curves(x_train, y_train, x_val, y_val, modelo6)
 plt.title("Modelo 6 Learning Curves (train y validation)")
 plt.show()
 
-"""Las gráficas anteriores muestran una mejora significativa de los datos. Sobre todo en la gráfica con los datos de entrenamiento y prueba. Ya que el modelo tiene un buen balance, tiene un error aceptable en el entrenamiento y un error aceptable de generalización en el subset de validación. Por lo tanto, muestra un diagnóstico deseado.
+pred6 = modelo6.predict(x_test)
+print("Error absoluto medio:", metrics.mean_absolute_error(y_test, pred6))
+print("Error cuadrático medio: ", metrics.mean_squared_error(y_test, pred6))
+
+"""Las gráficas anteriores muestran una mejora significativa de los datos. Sobre todo en la gráfica con los datos de entrenamiento y prueba. Ya que el modelo tiene un buen balance, tiene un error aceptable en el entrenamiento y un error aceptable de generalización en el subset de validación que son menores al error del modelo 4. Incluso, el error absoluto de este modelo (0.15217391304347827) es menor que el error absoluto del modelo 4 (0.15760869565217392). Por lo tanto, muestra un diagnóstico deseado.
 
 #### Comparación del desempeño del modelo antes y después de incluir las mejoras
 
-Para comparar el desempeño del modelo antes y después se utilizarán el modelo 4 implementado antes de las modificaciones y el modelo 6 en el que se ajustaron los parámetros para mejorar su desempeño.
+Para comparar el desempeño del modelo antes y después se utilizarán el modelo 1 y modelo 4 implementados antes de las modificaciones y el modelo 6 en el que se ajustaron los parámetros para mejorar su desempeño.
 """
 
-print("Modelo 4")
+print("Modelo 1")
+print("Training score modelo 1: ", modelo1.score(x_train,y_train))
+print("Validation score modelo 1: ", modelo1.score(x_val, y_val))
+print("Test score modelo 1: ", modelo1.score(x_test, y_test))
+
+print("\nModelo 4")
 print("Training score modelo 4: ", modelo4.score(x_train,y_train))
 print("Validation score modelo 4: ", modelo4.score(x_val, y_val))
 print("Test score modelo 4: ", modelo4.score(x_test, y_test))
@@ -423,7 +453,13 @@ print("Training score modelo 6: ", modelo6.score(x_train,y_train))
 print("Validation score modelo 6: ", modelo6.score(x_val, y_val))
 print("Test score modelo 6: ", modelo6.score(x_test, y_test))
 
-"""Como se puede observar tanto los valores de training score y test score del modelo 6 es más preciso que el modelo 4. Sin embargo, la precisión del validation score de ambos modelos es el mismo. """
+"""Como se puede observar tanto los valores de training score y validation score del modelo 1 es más preciso que los otros modelos. Sin embargo, la precisión del test score del modelo 1 es el menos preciso. Por lo tanto, a pesar de que el primer modelo sea el que tiene mejor desempeño en las primeras etapas, tiene el peor desempeño con el subset de test.  """
+
+#Modelo 1
+print('\nModelo 1: ')
+print(modelo1.predict_proba([df_x.loc[0]]))
+print('Heart Disease? Estimated: ', modelo1.predict([df_x.loc[0]]),
+      'Real: ', df_y.loc[0])
 
 #Modelo 4
 print('\nModelo 4: ')
@@ -437,7 +473,16 @@ print(modelo6.predict_proba([df_x.loc[0]]))
 print('Heart Disease? Estimated: ', modelo6.predict([df_x.loc[0]]),
       'Real: ', df_y.loc[0])
 
-"""Ahora, al realizar las predicciones se puede observar que ambos modelos están realizando la predicción de manera correcta. Como primer valor muestra la probabilidad de que el HeartDisease tenga un valor de 0 y 1. Después se muestra el valor estimado con los modelos y el valor real. En ambos modelos coinciden que el valor estimado por cada modelo y el valor real es 0, por lo que se puede confirmar que son modelos efectivos para la predicción de enfermedades cardiacas. Además se puede visualizar que la probabilidad de que se obtenga un valor de 0 en la predicción del modelo 6 es mayor que en el modelo 4. """
+"""Ahora, al realizar las predicciones se puede observar que ambos modelos están realizando la predicción de manera correcta. Como primer valor muestra la probabilidad de que el HeartDisease tenga un valor de 0 y 1. Después se muestra el valor estimado con los modelos y el valor real. En todos los modelos coinciden que el valor estimado por cada modelo y el valor real es 0, por lo que se puede confirmar que son modelos efectivos para la predicción de enfermedades cardiacas. """
+
+#Modelo 1
+print('Modelo 1: ')
+sns.set()
+f, ax = plt.subplots()
+matriz1 = confusion_matrix(y_test,pred1)
+print(classification_report(y_test,pred1))
+print('\nMatriz de confusión: ')
+sns.heatmap(matriz1, annot=True, ax=ax, cbar=False, fmt='g', cmap='Pastel2')
 
 #Modelo 4
 print('Modelo 4: ')
@@ -458,16 +503,21 @@ print(classification_report(y_test,pred6))
 print('\nMatriz de confusión: ')
 sns.heatmap(matriz6, annot=True, ax=ax, cbar=False, fmt='g', cmap='Pastel2')
 
-"""Para el cuarto modelo podemos observar que el valor de f1-score es 0.84. En la matriz de confusión se tienen 67 valores true positive y 88 valores true negative; es decir, valores predecidos que coinciden con el valor real. Además, se tienen 22 valores false positive y 7 false negative es decir valores erróneos.
+"""Para el primer modelo podemos observar que el valor de f1-score es 0.81. En la matriz de confusión se tienen 67 valores true positive y 82 valores true negative; es decir, valores predecidos que coinciden con el valor real. Además, se tienen 22 valores false positive y 13 false negative es decir valores erróneos.
+
+Para el cuarto modelo podemos observar que el valor de f1-score es 0.84. En la matriz de confusión se tienen 67 valores true positive y 88 valores true negative; es decir, valores predecidos que coinciden con el valor real. Además, se tienen 22 valores false positive y 7 false negative es decir valores erróneos.
 
 Por otro lado, en el sexto modelo se muestra un valor de f1-score de 0.85 lo que indica una mejora en el desempeño de este modelo. En la matriz de confusión se tienen 68 valores true positive y 88 valores true negative; es decir, valores predecidos que coinciden con el valor real. Además, se tienen 21 valores false positive y 7 false negative es decir valores erróneos.
+
+En conclusión, podemos observar una pequeña mejora en el modelo 6 ya que únicamente se tienen 28 valores erróneos mientras que en los modelos 1 y 4 se tienen 35 y 29 respectivamente. 
 """
 
-fig, ax =plt.subplots(1,3)
-sns.countplot(pred4, ax=ax[0], palette="Accent")
-sns.countplot(pred6, ax=ax[1], palette="Accent_r")
-sns.countplot(y_test, ax=ax[2], palette="RdBu_r")
+fig, ax =plt.subplots(1,4)
+sns.countplot(pred1, ax=ax[0], palette="Paired")
+sns.countplot(pred4, ax=ax[1], palette="Accent")
+sns.countplot(pred6, ax=ax[2], palette="Accent_r")
+sns.countplot(y_test, ax=ax[3], palette="RdBu_r")
 fig.show()
 
-"""En la gráfica anterior se muestra del lado izquierdo el número de valores predecidos con el modelo cuatro, en medio el número de valores predecidos con el modelo seis y del lado derecho los valores reales. Se puede observar que los datos predecidos con valor 1 en ambas gráficas (modelo 4 y 6) se acercan bastante a los valores reales. A pesar de que hay una diferencia significativa en los valores igual a cero de ambos modelos y los valores reales, podemos notar una pequeña mejora en el modelo 6. """
+"""En la gráfica anterior se muestra del lado izquierdo el número de valores predecidos con el primer modelo, después con el cuatro, en medio el número de valores predecidos con el modelo seis y del lado derecho los valores reales. Se puede observar que los datos predecidos con valor 1 en todas las gráficas (modelo 1, 4 y 6) se acercan bastante a los valores reales. A pesar de que hay una diferencia significativa en los valores igual a cero de los modelos y los valores reales, los que más se acercan son el modelo 1 y 6. """
 
